@@ -1,12 +1,12 @@
 package gameoflife.controller;
 
-import gameoflife.BaseBoardManager;
-import gameoflife.Board;
-import gameoflife.BoardManager;
-import gameoflife.GameObserver;
+import gameoflife.boardmanager.BaseBoardManager;
+import gameoflife.board.Board;
+import gameoflife.boardmanager.BoardManager;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 public class GameOfLife {
 
@@ -16,12 +16,18 @@ public class GameOfLife {
 
     private final Set<GameObserver> gameWatcher = new HashSet<>();
     private boolean run = false;
+    private Semaphore consumedEvent = null;
     BoardManager game = new BaseBoardManager(ROW,COLUMN);
 
     public void start(){
         run = true;
         new Thread(() -> {
             while (run){
+                try {
+                    consumedEvent.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 game.updateBoard();
                 notifyNewState(game.getBoard(),game.getLivingCell());
             }
@@ -42,6 +48,10 @@ public class GameOfLife {
             observer.nextBoardComplete(newBoard);
             observer.livingCellUpdate(livingCell);
         }
+    }
+
+    public void addComputeNextSemaphoreEvent(Semaphore consumedEvent){
+        this.consumedEvent = consumedEvent;
     }
 
 }

@@ -1,29 +1,44 @@
 package gameoflifegui;
 
-import javax.swing.*;
+import gameoflifegui.boardpanel.BoardPanel;
+import gameoflifegui.boardpanel.SimpleBoardPanel;
 
-public class MainPanel extends JFrame {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+public class MainPanel extends JFrame implements GameOfLifeGUI{
+
+    private final String LIVING_TEXT = "Living cell: ";
 
     BoardPanel board = new SimpleBoardPanel();
     JButton start = new JButton("Start");
     JButton stop = new JButton("Stop");
-    JLabel aliveCellLabel = new JLabel();
+    JLabel aliveCellLabel = new JLabel(LIVING_TEXT + "0");
 
     public MainPanel() {
         this.setTitle("Game of Life");
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLayout(new BorderLayout());
 
         board.initialize();
-        this.add(board);
+
+        JScrollPane boardPanel = new JScrollPane(board);
+        this.getContentPane().add(boardPanel, BorderLayout.CENTER);
 
         JPanel commandPanel = new JPanel();
         commandPanel.add(start);
         commandPanel.add(stop);
         commandPanel.add(aliveCellLabel);
 
-        this.add(commandPanel);
-
+        this.getContentPane().add(commandPanel,BorderLayout.PAGE_END);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
+    }
+
+    @Override
+    public void updateBoard(BufferedImage boardImage) {
+        board.updateDisplayedBoard(boardImage);
     }
 }

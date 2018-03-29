@@ -1,4 +1,6 @@
-package gameoflife;
+package gameoflife.boardmanager;
+
+import gameoflife.board.Board;
 
 public interface BoardManager {
 

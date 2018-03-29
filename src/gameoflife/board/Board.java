@@ -1,4 +1,4 @@
-package gameoflife;
+package gameoflife.board;
 
 public interface Board {
 

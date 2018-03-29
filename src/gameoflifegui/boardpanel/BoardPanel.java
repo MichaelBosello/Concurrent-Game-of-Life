@@ -1,4 +1,4 @@
-package gameoflifegui;
+package gameoflifegui.boardpanel;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;

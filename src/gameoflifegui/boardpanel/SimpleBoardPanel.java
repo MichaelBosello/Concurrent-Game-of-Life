@@ -1,9 +1,9 @@
-package gameoflifegui;
+package gameoflifegui.boardpanel;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 
-public class SimpleBoardPanel extends BoardPanel{
+public class SimpleBoardPanel extends BoardPanel {
 
     JLabel boardDisplay = new JLabel();
 

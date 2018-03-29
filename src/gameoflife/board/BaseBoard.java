@@ -1,8 +1,8 @@
-package gameoflife;
+package gameoflife.board;
 
 import java.util.Random;
 
-public class BaseBoard implements ManagedBoard{
+public class BaseBoard implements ManagedBoard {
 
     private int row, column;
     private boolean[][] board;

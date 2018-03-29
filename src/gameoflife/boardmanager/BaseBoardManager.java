@@ -1,6 +1,10 @@
-package gameoflife;
+package gameoflife.boardmanager;
 
-public class BaseBoardManager implements BoardManager{
+import gameoflife.board.Board;
+import gameoflife.board.BoardFactory;
+import gameoflife.board.ManagedBoard;
+
+public class BaseBoardManager implements BoardManager {
 
     private ManagedBoard currentBoard;
     private ManagedBoard nextBoard;

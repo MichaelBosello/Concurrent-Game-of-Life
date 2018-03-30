@@ -1,44 +1,66 @@
-import gameoflifegui.GameOfLifeGUI;
-import gameoflifegui.MainPanel;
+import gameoflife.board.Board;
+import gameoflife.controller.BaseGameOfLife;
+import gameoflife.controller.GameObserver;
+import gameoflife.controller.GameOfLife;
+import gameoflifegui.mainpanel.GameOfLifeGUI;
+import gameoflifegui.mainpanel.MainPanel;
+import gameoflifegui.mainpanel.MainPanelObserver;
+import gameoflifegui.matrixtoimage.ConvertToImage;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
-import java.awt.image.WritableRaster;
+import java.util.concurrent.Semaphore;
 
 public class AppController {
 
-    private final static int ROW = 1000;
-    private final static int COLUMN = 1000;
+    private final static Semaphore CONSUME_EVENT = new Semaphore(1);
 
     public static void main(String args[]) {
+
+        GameOfLife gameOfLife = new BaseGameOfLife();
+        gameOfLife.addComputeNextSemaphoreEvent(CONSUME_EVENT);
+
         SwingUtilities.invokeLater(() -> {
-            GameOfLifeGUI window = new MainPanel();
+            final GameOfLifeGUI window = new MainPanel();
 
+            window.addObserver(new MainPanelObserver() {
+                @Override
+                public void startEvent() {
+                    gameOfLife.start();
+                }
 
-            int w = 5000, h = 5000;
+                @Override
+                public void stopEvent() {
+                    gameOfLife.stop();
+                }
 
-            // create the binary mapping
-            byte BLACK = (byte)0, WHITE = (byte)255;
-            byte[] map = {BLACK, WHITE};
-            IndexColorModel icm = new IndexColorModel(1, map.length, map, map, map);
+                @Override
+                public void boardUpdated() {
+                    CONSUME_EVENT.release();
+                }
+            });
 
-            // create checkered data
-            int[] data = new int[w*h];
-            for(int i=0; i<w; i++)
-                for(int j=0; j<h; j++)
-                    data[i*h + j] = i%4<2 && j%4<2 || i%4>=2 && j%4>=2 ? BLACK:WHITE;
+            gameOfLife.addObserver(new GameObserver() {
+                @Override
+                public void nextBoardComplete(final Board board) {
 
-            // create image from color model and data
-            WritableRaster raster = icm.createCompatibleWritableRaster(w, h);
-            raster.setPixels(0, 0, w, h, data);
-            BufferedImage bi = new BufferedImage(icm, raster, false, null);
+                    final BufferedImage boardImage = ConvertToImage.boardToImageWithBigCells(board);
 
-            window.updateBoard(bi);
+                    SwingUtilities.invokeLater(() -> {
+                        window.updateBoard(boardImage);
+                    });
+                }
 
+                @Override
+                public void livingCellUpdated(final int livingCell) {
+                    SwingUtilities.invokeLater(() -> {
+                        window.updateLivingCellLabel(livingCell);
+                    });
+                }
+            });
 
         });
+
     }
 
 }

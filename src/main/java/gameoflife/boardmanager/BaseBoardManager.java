@@ -4,7 +4,12 @@ import gameoflife.board.Board;
 import gameoflife.board.BoardFactory;
 import gameoflife.board.ManagedBoard;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class BaseBoardManager implements BoardManager {
+
+    private static final Logger LOGGER = Logger.getLogger( BaseBoardManager.class.getName() );
 
     private ManagedBoard currentBoard;
     private ManagedBoard nextBoard;
@@ -26,27 +31,33 @@ public class BaseBoardManager implements BoardManager {
 
         int rowStart = (row > 0) ? (row - 1) : 0;
         int columnStart = (column > 0) ? (column - 1) : 0;
-        int rowEnd = (row < currentBoard.getRow()) ? (row + 1) : currentBoard.getRow();
-        int columnEnd = (column < currentBoard.getColumn()) ? (column + 1) : currentBoard.getColumn();
+        int rowEnd = (row < currentBoard.getRow() -1) ? (row + 2):
+                (row < currentBoard.getRow()) ? (row + 1) : currentBoard.getRow();
+        int columnEnd = (column < currentBoard.getColumn() -1) ? (column + 2):
+                (column < currentBoard.getColumn()) ? (column + 1) : currentBoard.getColumn();
 
         for(int nearRow = rowStart; nearRow < rowEnd; nearRow++){
             for(int nearColumn = columnStart; nearColumn < columnEnd; nearColumn++){
                 neighborhood += currentBoard.isCellAlive(nearRow,nearColumn)? 1 : 0;
+                LOGGER.log(Level.FINEST, "Cell [" + row + "," + column +
+                        "] neighbour: [" + nearRow + "," + nearColumn + "]");
             }
         }
 
         if(currentBoard.isCellAlive(row,column)){
             neighborhood--;
             if(neighborhood == 2){
+                LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
                 return true;
             }
         }
 
         if(neighborhood == 3){
+            LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
             return true;
         }
 
-
+        LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] dies");
         return false;
     }
 

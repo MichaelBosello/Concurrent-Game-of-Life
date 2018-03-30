@@ -1,19 +1,11 @@
 package gameoflife.board;
 
-import utility.MillisecondStopWatch;
-import utility.StopWatch;
-
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BaseBoard implements ManagedBoard {
 
     private int row, column;
     private boolean[][] board;
-    private final StopWatch INITIALIZE_STOPWATCH = new MillisecondStopWatch();
-
-    private static final Logger LOGGER = Logger.getLogger( ManagedBoard.class.getName() );
 
     public BaseBoard(final int row, final int column) {
         if(row <= 0 || column <= 0){
@@ -31,12 +23,9 @@ public class BaseBoard implements ManagedBoard {
 
     @Override
     public void initializeWithRandomState(long seed){
-        INITIALIZE_STOPWATCH.start();
         final Random randomForBoard = new Random();
         randomForBoard.setSeed(seed);
         iterateCell((row, column) -> board[row][column] = randomForBoard.nextBoolean());
-        INITIALIZE_STOPWATCH.stop();
-        LOGGER.log(Level.INFO, "Random board created in (ms) " + INITIALIZE_STOPWATCH.getTime());
     }
 
     @Override

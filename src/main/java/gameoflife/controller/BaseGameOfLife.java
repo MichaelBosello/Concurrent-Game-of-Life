@@ -7,6 +7,7 @@ import gameoflife.boardmanager.BoardManager;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,36 +20,49 @@ public class BaseGameOfLife implements GameOfLife{
 
 
     private final Set<GameObserver> gameWatcher = new HashSet<>();
-    private boolean run = false;
+    private AtomicBoolean run = new AtomicBoolean();
+    private AtomicBoolean nextAlreadyPrepared = new AtomicBoolean();
     private Semaphore consumedEvent = null;
-    BoardManager game = new BaseBoardManager(ROW,COLUMN);
+    BoardManager game;
 
-    @Override
-    public void start(){
-        LOGGER.log(Level.FINE, "Start event received by backend");
-        run = true;
-        new Thread(() -> {
-            while (run){
-                try {
-                    LOGGER.log(Level.FINEST, "Try to acquire event lock");
-                    consumedEvent.acquire();
-                    LOGGER.log(Level.FINEST, "Lock acquired, updating board");
-                    game.updateBoard();
-                    LOGGER.log(Level.FINEST, "New board ready");
-                    notifyNewState(game.getBoard(),game.getLivingCell());
-                } catch (InterruptedException e) {
-                    LOGGER.log(Level.SEVERE, "Can't acquire event lock " + e.toString(), e);
-                }finally {
-                    consumedEvent.release();
-                }
-            }
-        }).start();
+    public BaseGameOfLife(Semaphore consumedEvent) {
+        this.consumedEvent = consumedEvent;
+        game = new BaseBoardManager(ROW,COLUMN);
 
     }
 
     @Override
+    public void start(){
+        if(nextAlreadyPrepared.getAndSet(false)){
+            notifyNewState(game.getBoard(),game.getLivingCell());
+        }
+        if(!run.getAndSet(true)){
+            LOGGER.log(Level.FINE, "Start event received by backend");
+            new Thread(() -> {
+                while (run.get()){
+                    try {
+                        LOGGER.log(Level.FINEST, "Try to acquire event lock");
+                        consumedEvent.acquire();
+                        LOGGER.log(Level.FINEST, "Lock acquired, updating board");
+                        game.updateBoard();
+                        LOGGER.log(Level.FINEST, "New board ready");
+                        if(run.get()){
+                            notifyNewState(game.getBoard(),game.getLivingCell());
+                        }else{
+                            nextAlreadyPrepared.set(true);
+                        }
+
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.SEVERE, "Can't acquire event lock " + e.toString(), e);
+                    }
+                }
+            }).start();
+        }
+    }
+
+    @Override
     public void stop(){
-        this.run = false;
+        this.run.set(false);
         LOGGER.log(Level.FINE, "Stop event received by backend");
     }
 
@@ -64,9 +78,15 @@ public class BaseGameOfLife implements GameOfLife{
         }
     }
 
+
     @Override
-    public void addComputeNextSemaphoreEvent(Semaphore consumedEvent){
-        this.consumedEvent = consumedEvent;
+    public Board getBoard() {
+        return game.getBoard();
+    }
+
+    @Override
+    public int getLivingCell() {
+        return game.getLivingCell();
     }
 
 }

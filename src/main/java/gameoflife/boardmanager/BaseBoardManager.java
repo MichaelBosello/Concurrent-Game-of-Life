@@ -19,6 +19,13 @@ public class BaseBoardManager implements BoardManager {
     public BaseBoardManager(int row, int column) {
         currentBoard = BoardFactory.createSimpleBoard(row, column);
         nextBoard = BoardFactory.createSimpleBoard(row, column);
+
+        currentBoard.iterateCell((cellRow, cellColumn) -> {
+            if(currentBoard.isCellAlive(cellRow,cellColumn)){
+                livingCell++;
+            }
+        });
+
     }
 
     @Override

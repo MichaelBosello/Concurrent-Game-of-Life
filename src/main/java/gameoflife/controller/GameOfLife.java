@@ -12,5 +12,7 @@ public interface GameOfLife {
 
     void addObserver(GameObserver observer);
 
-    void addComputeNextSemaphoreEvent(Semaphore consumedEvent);
+    Board getBoard();
+
+    int getLivingCell();
 }

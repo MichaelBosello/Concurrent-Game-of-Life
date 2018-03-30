@@ -12,4 +12,10 @@ public class BoardFactory {
         return board;
     }
 
+    public static ManagedBoard createRandomBoard(int row, int column, int seed){
+        ManagedBoard board = new BaseBoard(row, column);
+        board.initializeWithRandomState(seed);
+        return board;
+    }
+
 }

@@ -1,8 +1,11 @@
 package gameoflife.controller;
 
+import gameoflife.board.BaseBoard;
 import gameoflife.boardmanager.BaseBoardManager;
 import gameoflife.board.Board;
 import gameoflife.boardmanager.BoardManager;
+import utility.MillisecondStopWatch;
+import utility.StopWatch;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,51 +16,63 @@ import java.util.logging.Logger;
 
 public class BaseGameOfLife implements GameOfLife{
 
-    private static final Logger LOGGER = Logger.getLogger( BaseGameOfLife.class.getName() );
+    private final Logger LOGGER = Logger.getLogger( BaseGameOfLife.class.getName() );
+    private final StopWatch boardComputation = new MillisecondStopWatch();
+    private final String TIME_UNIT = "ms";
 
-    private final int ROW = 50;
-    private final int COLUMN = 50;
+    private final int ROW = 100;
+    private final int COLUMN = 100;
 
 
     private final Set<GameObserver> gameWatcher = new HashSet<>();
     private AtomicBoolean run = new AtomicBoolean();
-    private AtomicBoolean nextAlreadyPrepared = new AtomicBoolean();
     private Semaphore consumedEvent = null;
+    private Semaphore startEvent = new Semaphore(0);
     BoardManager game;
 
     public BaseGameOfLife(Semaphore consumedEvent) {
         this.consumedEvent = consumedEvent;
         game = new BaseBoardManager(ROW,COLUMN);
 
+        new Thread(new Updater(),"Thread-update").start();
+    }
+
+    private class Updater implements Runnable {
+        private final Logger LOGGER = Logger.getLogger( Updater.class.getName() );
+
+        public void run() {
+            while (true){
+                try {
+                    LOGGER.log(Level.FINEST, "Try to acquire event lock");
+                    consumedEvent.acquire();
+                    LOGGER.log(Level.FINEST, "Lock acquired, updating board");
+                    LOGGER.log(Level.FINE, "CPU intensive compute next board, Thread: " + Thread.currentThread().getName());
+
+                    boardComputation.start();
+                    game.updateBoard();
+                    boardComputation.stop();
+                    LOGGER.log(Level.INFO, "Board computation time: ("+TIME_UNIT+") " + boardComputation.getTime());
+
+                    LOGGER.log(Level.FINEST, "New board ready");
+                    while (!run.get()){
+                        startEvent.acquire();
+                    }
+                    notifyNewState(game.getBoard(),game.getLivingCell());
+                    LOGGER.log(Level.FINER, "Notified new board");
+                } catch (InterruptedException e) {
+                    LOGGER.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
+                }
+            }
+        }
     }
 
     @Override
     public void start(){
-        if(nextAlreadyPrepared.getAndSet(false)){
-            notifyNewState(game.getBoard(),game.getLivingCell());
+        this.run.set(true);
+        if(startEvent.availablePermits() == 0){
+            startEvent.release();
         }
-        if(!run.getAndSet(true)){
-            LOGGER.log(Level.FINE, "Start event received by backend");
-            new Thread(() -> {
-                while (run.get()){
-                    try {
-                        LOGGER.log(Level.FINEST, "Try to acquire event lock");
-                        consumedEvent.acquire();
-                        LOGGER.log(Level.FINEST, "Lock acquired, updating board");
-                        game.updateBoard();
-                        LOGGER.log(Level.FINEST, "New board ready");
-                        if(run.get()){
-                            notifyNewState(game.getBoard(),game.getLivingCell());
-                        }else{
-                            nextAlreadyPrepared.set(true);
-                        }
-
-                    } catch (InterruptedException e) {
-                        LOGGER.log(Level.SEVERE, "Can't acquire event lock " + e.toString(), e);
-                    }
-                }
-            }).start();
-        }
+        LOGGER.log(Level.FINE, "Start event received by backend");
     }
 
     @Override
@@ -73,7 +88,7 @@ public class BaseGameOfLife implements GameOfLife{
 
     private void notifyNewState(Board newBoard, int livingCell){
         for (final GameObserver observer : this.gameWatcher){
-            observer.nextBoardComplete(newBoard);
+            observer.nextBoardComplete(new BaseBoard(newBoard));
             observer.livingCellUpdated(livingCell);
         }
     }
@@ -81,7 +96,7 @@ public class BaseGameOfLife implements GameOfLife{
 
     @Override
     public Board getBoard() {
-        return game.getBoard();
+        return new BaseBoard(game.getBoard());
     }
 
     @Override

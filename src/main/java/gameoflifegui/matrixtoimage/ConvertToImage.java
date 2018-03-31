@@ -9,9 +9,13 @@ import java.awt.image.WritableRaster;
 
 public class ConvertToImage {
 
-    public static BufferedImage boardToImage(Board board){
+    public static final int RATIO = 30;
 
-        int width = board.getRow(), height = board.getColumn();
+    public static BufferedImage boardToImage(Board board){
+        return boardToImage(board,0,0, board.getRow(), board.getColumn());
+    }
+
+    public static BufferedImage boardToImage(Board board, int x, int y, int width, int height){
 
         byte BLACK = (byte)0, WHITE = (byte)255;
         byte[] map = {BLACK, WHITE};
@@ -20,7 +24,7 @@ public class ConvertToImage {
         int[] data = new int[width*height];
         for(int row=0; row<width; row++)
             for(int column=0; column<height; column++)
-                data[row*height + column] = board.isCellAlive(row,column) ? BLACK:WHITE;
+                data[row*height + column] = board.isCellAlive(x + row,y + column) ? BLACK:WHITE;
 
         WritableRaster raster = icm.createCompatibleWritableRaster(width, height);
         raster.setPixels(0, 0, width, height, data);
@@ -60,5 +64,32 @@ public class ConvertToImage {
         }
 
         return resize(boardToImage(board),board.getRow()*resizeRatio,board.getColumn()*resizeRatio);
+    }
+
+    public static BufferedImage[] boardToListImage(Board board){
+        return getTile(boardToImageWithBigCells(board),RATIO,RATIO);
+    }
+
+    public static BufferedImage[] getTile(BufferedImage image, int row,int column) {
+
+        /*
+        * thanks to
+        * https://stackoverflow.com/questions/12418618/split-image-into-clickable-regions
+        * */
+
+        int chunkHeight = image.getHeight() / row;
+        int chunkWidth = image.getWidth() / column;
+        int count = 0;
+        BufferedImage orderedChunks[] = new BufferedImage[row*column];
+        for (int x = 0; x < row; x++) {
+            for (int y = 0; y < column; y++) {
+                orderedChunks[count] = new BufferedImage(chunkWidth, chunkHeight, image.getType());
+
+                Graphics2D chunkGraphics = orderedChunks[count++].createGraphics();
+                chunkGraphics.drawImage(image, 0, 0, chunkWidth, chunkHeight, chunkWidth * y, chunkHeight * x, chunkWidth * y + chunkWidth, chunkHeight * x + chunkHeight, null);
+                chunkGraphics.dispose();
+            }
+        }
+        return orderedChunks;
     }
 }

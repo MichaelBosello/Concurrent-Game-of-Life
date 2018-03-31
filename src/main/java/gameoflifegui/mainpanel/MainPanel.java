@@ -1,9 +1,7 @@
 package gameoflifegui.mainpanel;
 
-import gameoflife.controller.GameObserver;
-import gameoflifegui.boardpanel.BoardPanel;
-import gameoflifegui.boardpanel.SimpleBoardPanel;
-import gameoflifegui.mainpanel.GameOfLifeGUI;
+import gameoflife.board.Board;
+import gameoflifegui.boardpanel.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,20 +14,19 @@ public class MainPanel extends JFrame implements GameOfLifeGUI {
     private final String LIVING_TEXT = "Living cell: ";
     private final Set<MainPanelObserver> guiObserver = new HashSet<>();
 
-    BoardPanel board = new SimpleBoardPanel();
-    JButton start = new JButton("Start");
-    JButton stop = new JButton("Stop");
-    JLabel aliveCellLabel = new JLabel(LIVING_TEXT + "0");
+    private BoardPanel board = new ScrollingBoard();
+    private JLabel aliveCellLabel = new JLabel(LIVING_TEXT + "0");
 
     public MainPanel() {
         this.setTitle("Game of Life");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
-        board.initialize();
+        //JScrollPane boardPanel = new JScrollPane(board);
+        this.getContentPane().add(board, BorderLayout.CENTER);
 
-        JScrollPane boardPanel = new JScrollPane(board);
-        this.getContentPane().add(boardPanel, BorderLayout.CENTER);
+        JButton start = new JButton("Start");
+        JButton stop = new JButton("Stop");
 
         JPanel commandPanel = new JPanel();
         start.addActionListener(e -> notifyStart());
@@ -39,13 +36,19 @@ public class MainPanel extends JFrame implements GameOfLifeGUI {
         commandPanel.add(aliveCellLabel);
 
         this.getContentPane().add(commandPanel,BorderLayout.PAGE_END);
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.setSize(1000, 1000);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
     @Override
     public void updateBoard(BufferedImage boardImage) {
+        board.updateDisplayedBoard(boardImage);
+        notifyUpdated();
+    }
+
+    @Override
+    public void updateBoard(Board boardImage) {
         board.updateDisplayedBoard(boardImage);
         notifyUpdated();
     }

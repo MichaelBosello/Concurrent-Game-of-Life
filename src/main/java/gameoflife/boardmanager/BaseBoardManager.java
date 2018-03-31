@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 public class BaseBoardManager implements BoardManager {
 
-    private static final Logger LOGGER = Logger.getLogger( BaseBoardManager.class.getName() );
+    private final Logger LOGGER = Logger.getLogger( BaseBoardManager.class.getName() );
 
     private ManagedBoard currentBoard;
     private ManagedBoard nextBoard;
@@ -17,8 +17,8 @@ public class BaseBoardManager implements BoardManager {
 
 
     public BaseBoardManager(int row, int column) {
-        currentBoard = BoardFactory.createSimpleBoard(row, column);
-        nextBoard = BoardFactory.createSimpleBoard(row, column);
+        currentBoard = BoardFactory.createLotOfGlider(row,column);
+        nextBoard = BoardFactory.createCopyBoard(currentBoard);
 
         currentBoard.iterateCell((cellRow, cellColumn) -> {
             if(currentBoard.isCellAlive(cellRow,cellColumn)){

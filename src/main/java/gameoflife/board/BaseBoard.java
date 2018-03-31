@@ -7,6 +7,13 @@ public class BaseBoard implements ManagedBoard {
     private int row, column;
     private boolean[][] board;
 
+    public BaseBoard(Board board){
+        this.row = board.getRow();
+        this.column = board.getColumn();
+        this.board = new boolean[row][column];
+        board.iterateCell((row, column) -> this.board[row][column] = board.isCellAlive(row,column));
+    }
+
     public BaseBoard(final int row, final int column) {
         if(row <= 0 || column <= 0){
             throw new IllegalArgumentException();

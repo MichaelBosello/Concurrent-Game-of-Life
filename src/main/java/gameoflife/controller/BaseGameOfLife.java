@@ -33,7 +33,7 @@ public class BaseGameOfLife implements GameOfLife{
 
     public BaseGameOfLife(Semaphore consumedEvent) {
         this.consumedEvent = consumedEvent;
-        game = new BaseBoardManager(ROW,COLUMN);
+        game = new ConcurrentBoardManager(ROW,COLUMN);
 
         new Thread(new Updater(),"Thread-update").start();
     }

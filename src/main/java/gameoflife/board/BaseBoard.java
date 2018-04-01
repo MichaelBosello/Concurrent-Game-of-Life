@@ -40,6 +40,25 @@ public class BaseBoard implements ManagedBoard {
 
     @Override
     public void iterateSubCell(int startRow, int startColumn, int endRow, int endColumn, cellIterator toPerform) {
+
+        int row;
+        int column;
+        int boardColumn = startRow == endRow ? endColumn : getColumn();
+
+        for (column = startColumn; column < boardColumn; column++){
+            toPerform.doForEachCell(startRow,column);
+        }
+        for (row = startRow + 1; row < endRow; row++){
+            for (column = 0; column < boardColumn; column++){
+                toPerform.doForEachCell(row,column);
+            }
+        }
+        for (column = 0; column < endColumn; column++){
+            toPerform.doForEachCell(endRow,column);
+        }
+
+        /*
+        //first attempt (less efficient)
         for (int row = startRow; row <= endRow; row++){
             int startSubColumn = 0;
             int endSubColumn = getColumn();
@@ -51,7 +70,7 @@ public class BaseBoard implements ManagedBoard {
             for (int column = startSubColumn; column < endSubColumn; column++){
                 toPerform.doForEachCell(row,column);
             }
-        }
+        }*/
     }
 
     @Override

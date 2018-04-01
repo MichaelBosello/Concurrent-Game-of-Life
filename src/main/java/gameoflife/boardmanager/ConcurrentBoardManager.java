@@ -5,6 +5,8 @@ import gameoflife.board.ManagedBoard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,12 +18,17 @@ public class ConcurrentBoardManager extends BaseBoardManager {
     private ManagedBoard debugBoard;
 
     private final List<subBoardWorker> WORKERS = new ArrayList<>();
-    private final int PROCESSORS = Runtime.getRuntime().availableProcessors()+1;
+    private final int PROCESSORS = Runtime.getRuntime().availableProcessors() + 1 ;
+    //best performance with core/2 worker cause of hyper-threading core:
+    //private final int PROCESSORS = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors()/2 : 1 ;
+    private final Executor EXECUTOR_POOL = Executors.newFixedThreadPool(PROCESSORS);
     private final Semaphore SUB_COMPUTATION_DONE = new Semaphore(0);
 
     public ConcurrentBoardManager(int row, int column) {
         super(row, column);
-        debugBoard = BoardFactory.createEmptyBoard(row,column);
+        LOGGER.log(Level.INFO, "Worker number:" + PROCESSORS);
+        if(DEBUG)
+            debugBoard = BoardFactory.createEmptyBoard(row,column);
         int cellPerThread = (row * column)/PROCESSORS;
         int remainCell = (row * column) - (cellPerThread * PROCESSORS);
         for(int counter = 0; counter < PROCESSORS; counter++){
@@ -42,7 +49,8 @@ public class ConcurrentBoardManager extends BaseBoardManager {
         livingCell = 0;
 
         for (subBoardWorker worker :WORKERS){
-            new Thread(worker).start();
+            //new Thread(worker).start();
+            EXECUTOR_POOL.execute(worker);
         }
 
         try {
@@ -83,10 +91,10 @@ public class ConcurrentBoardManager extends BaseBoardManager {
         }
 
         public subBoardWorker(int startCell, int endCell){
-            this(startCell/currentBoard.getRow(),
-                    startCell%currentBoard.getRow(),
-                    endCell/currentBoard.getRow(),
-                    endCell%currentBoard.getRow());
+            this(startCell/currentBoard.getColumn(),
+                    startCell%currentBoard.getColumn(),
+                    endCell/currentBoard.getColumn(),
+                    endCell%currentBoard.getColumn());
             LOGGER.log(Level.INFO, "Call creation of new worker: from " + startCell + " to " + endCell);
         }
 

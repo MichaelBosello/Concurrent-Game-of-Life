@@ -32,11 +32,6 @@ public class AppController {
         CREATE_BOARD_TIME.stop();
         LOGGER.log(Level.INFO, "Board created in: ("+TIME_UNIT+") " + CREATE_BOARD_TIME.getTime());
 
-        CREATE_BOARD_TIME.start();
-        final BufferedImage firstImage = ConvertToImage.boardToImageWithBigCells(gameOfLife.getBoard());
-        CREATE_BOARD_TIME.stop();
-        LOGGER.log(Level.INFO, "First board image created in: ("+TIME_UNIT+") " + CREATE_BOARD_TIME.getTime());
-
         try {
             SwingUtilities.invokeAndWait(() -> {
                 final GameOfLifeGUI window = new MainPanel();

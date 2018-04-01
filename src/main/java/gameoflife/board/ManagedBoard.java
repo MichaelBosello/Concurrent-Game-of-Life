@@ -1,7 +1,5 @@
 package gameoflife.board;
 
-import gameoflife.board.Board;
-
 public interface ManagedBoard extends Board {
 
     void setAlive(int row, int column);

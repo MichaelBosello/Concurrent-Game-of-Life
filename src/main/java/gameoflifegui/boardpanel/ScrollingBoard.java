@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 public class ScrollingBoard extends BoardPanel{
 
     private static final Logger LOGGER = Logger.getLogger( BigImageScrollPane.class.getName() );
-    private static final int BOARD_ROW = 100;
-    private static final int BOARD_COLUMN = 100;
+    private static int boardRow = 100;
+    private static int boardColumn = 100;
 
     private JLabel boardDisplay = new JLabel();
     private JScrollBar horizontalScroller;
@@ -46,8 +46,14 @@ public class ScrollingBoard extends BoardPanel{
                 canvasWidth = e.getComponent().getWidth() - verticalScroller.getWidth();
                 canvasHeight = e.getComponent().getHeight() - horizontalScroller.getHeight();
                 if(board != null){
-                    verticalScroller.setMaximum(board.getRow() - BOARD_ROW);
-                    horizontalScroller.setMaximum(board.getColumn() - BOARD_COLUMN);
+                    if(board.getRow() < boardRow) {
+                        boardRow = board.getRow();
+                    }
+                    if(board.getColumn() < boardColumn) {
+                        boardColumn = board.getColumn();
+                    }
+                    verticalScroller.setMaximum(board.getRow() - boardRow);
+                    horizontalScroller.setMaximum(board.getColumn() - boardColumn);
                     updateImage();
                 }
             }
@@ -62,7 +68,7 @@ public class ScrollingBoard extends BoardPanel{
             boardDisplay.setIcon(new ImageIcon(
                     ConvertToImage.resize(
                     ConvertToImage.boardToImage(board,
-                    verticalScroller.getValue(),horizontalScroller.getValue(),BOARD_ROW,BOARD_COLUMN),
+                    verticalScroller.getValue(),horizontalScroller.getValue(), boardRow, boardColumn),
                     canvasWidth,canvasHeight)));
     }
 
@@ -76,8 +82,14 @@ public class ScrollingBoard extends BoardPanel{
             initialized = true;
             canvasWidth = this.getWidth() - verticalScroller.getWidth();
             canvasHeight = this.getHeight() - horizontalScroller.getHeight();
-            verticalScroller.setMaximum(board.getRow() - BOARD_ROW);
-            horizontalScroller.setMaximum(board.getColumn() - BOARD_COLUMN);
+            if(board.getRow() < boardRow) {
+                boardRow = board.getRow();
+            }
+            if(board.getColumn() < boardColumn) {
+                boardColumn = board.getColumn();
+            }
+            verticalScroller.setMaximum(board.getRow() - boardRow);
+            horizontalScroller.setMaximum(board.getColumn() - boardColumn);
         }
 
         this.board = board;

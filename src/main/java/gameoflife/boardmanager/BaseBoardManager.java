@@ -11,9 +11,9 @@ public class BaseBoardManager implements BoardManager {
 
     private final Logger LOGGER = Logger.getLogger( BaseBoardManager.class.getName() );
 
-    private ManagedBoard currentBoard;
-    private ManagedBoard nextBoard;
-    private int livingCell = 0;
+    protected ManagedBoard currentBoard;
+    protected ManagedBoard nextBoard;
+    protected int livingCell = 0;
 
 
     public BaseBoardManager(int row, int column) {
@@ -33,7 +33,7 @@ public class BaseBoardManager implements BoardManager {
         return currentBoard;
     }
 
-    private boolean cellSurvive(int row, int column){
+    protected boolean cellSurvive(int row, int column){
         int neighborhood = 0;
 
         int rowStart = (row > 0) ? (row - 1) : 0;
@@ -85,7 +85,7 @@ public class BaseBoardManager implements BoardManager {
 
     }
 
-    private void swapBoard(){
+    protected void swapBoard(){
         ManagedBoard temporaryBoard = currentBoard;
         currentBoard = nextBoard;
         nextBoard = temporaryBoard;

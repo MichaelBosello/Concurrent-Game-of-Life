@@ -1,9 +1,7 @@
 package gameoflife.board;
 
 import java.util.Random;
-
 public class BaseBoard implements ManagedBoard {
-
     private int row, column;
     private boolean[][] board;
 
@@ -37,8 +35,20 @@ public class BaseBoard implements ManagedBoard {
 
     @Override
     public void iterateCell(cellIterator toPerform){
-        for (int row = 0; row < getRow(); row++){
-            for (int column = 0; column < getColumn(); column++){
+        iterateSubCell(0,0,getRow(),0,toPerform);
+    }
+
+    @Override
+    public void iterateSubCell(int startRow, int startColumn, int endRow, int endColumn, cellIterator toPerform) {
+        for (int row = startRow; row <= endRow; row++){
+            int startSubColumn = 0;
+            int endSubColumn = getColumn();
+            if(row == startRow){
+                startSubColumn = startColumn;
+            }else if(row == endRow){
+                endSubColumn = endColumn;
+            }
+            for (int column = startSubColumn; column < endSubColumn; column++){
                 toPerform.doForEachCell(row,column);
             }
         }

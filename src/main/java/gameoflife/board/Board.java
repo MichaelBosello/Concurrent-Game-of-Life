@@ -13,6 +13,8 @@ public interface Board {
 
     void iterateCell(cellIterator toPerform);
 
+    void iterateSubCell(int startRow, int startColumn, int endRow, int endColumn, cellIterator toPerform);
+
     boolean isCellAlive(int row, int column);
 
     int getColumn();

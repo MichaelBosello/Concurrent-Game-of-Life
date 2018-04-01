@@ -4,6 +4,7 @@ import gameoflife.board.BaseBoard;
 import gameoflife.boardmanager.BaseBoardManager;
 import gameoflife.board.Board;
 import gameoflife.boardmanager.BoardManager;
+import gameoflife.boardmanager.ConcurrentBoardManager;
 import utility.MillisecondStopWatch;
 import utility.StopWatch;
 
@@ -20,8 +21,8 @@ public class BaseGameOfLife implements GameOfLife{
     private final StopWatch boardComputation = new MillisecondStopWatch();
     private final String TIME_UNIT = "ms";
 
-    private final int ROW = 100;
-    private final int COLUMN = 100;
+    private final int ROW = 5000;
+    private final int COLUMN = 5000;
 
 
     private final Set<GameObserver> gameWatcher = new HashSet<>();

@@ -1,7 +1,6 @@
 package application;
 
 import gameoflife.board.Board;
-import gameoflife.controller.GameObserver;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 import gameoflifegui.matrixtoimage.ConvertToImage;
 import utility.MillisecondStopWatch;
@@ -12,15 +11,14 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GameObserverWithImageComputation implements GameObserver{
+public class GameObserverWithImageComputation extends BoardGameObserver{
 
-    protected final Logger LOGGER = Logger.getLogger( GUIObserver.class.getName());
-    protected final StopWatch CREATE_IMAGE_TIME = new MillisecondStopWatch();
-    protected final String TIME_UNIT = "ms";
-    protected GameOfLifeGUI window;
+    private static final Logger LOGGER = Logger.getLogger( GameObserverWithImageComputation.class.getName());
+    private static final StopWatch CREATE_IMAGE_TIME = new MillisecondStopWatch();
+    private static final String TIME_UNIT = "ms";
 
     public GameObserverWithImageComputation(GameOfLifeGUI window) {
-        this.window = window;
+        super(window);
     }
 
     @Override
@@ -34,13 +32,6 @@ public class GameObserverWithImageComputation implements GameObserver{
 
         SwingUtilities.invokeLater(() -> {
             window.updateBoard(boardImage);
-        });
-    }
-
-    @Override
-    public void livingCellUpdated(final int livingCell) {
-        SwingUtilities.invokeLater(() -> {
-            window.updateLivingCellLabel(livingCell);
         });
     }
 }

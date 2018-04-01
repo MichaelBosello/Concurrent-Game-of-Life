@@ -5,15 +5,27 @@ public class BoardFactory {
     private BoardFactory() {}
 
     public static ManagedBoard createSimpleBoard(int row, int column){
-        ManagedBoard board = new BaseBoard(row, column);
-        board.initializeWithRandomState(System.nanoTime());
-        return board;
+        return createRandomBoard(row, column, System.nanoTime());
     }
 
-    public static ManagedBoard createRandomBoard(int row, int column, int seed){
+    public static ManagedBoard createRandomBoard(int row, int column, long seed){
         ManagedBoard board = new BaseBoard(row, column);
         board.initializeWithRandomState(seed);
         return board;
+    }
+
+    public static ManagedBoard createEmptyBoard(int row, int column){
+        ManagedBoard board = new BaseBoard(row, column);
+        board.iterateCell((r, c) -> board.setDead(r, c));
+        return board;
+    }
+
+    public static ManagedBoard createCopyBoard(ManagedBoard board){
+        return new BaseBoard(board);
+    }
+
+    public static ManagedBoard createCopyBoard(Board board){
+        return new BaseBoard(board);
     }
 
     public static ManagedBoard createLWSS(ManagedBoard board, int row, int column){
@@ -29,6 +41,16 @@ public class BoardFactory {
         return board;
     }
 
+    public static ManagedBoard createLotOfLWSS(int row, int column){
+        ManagedBoard board = createEmptyBoard(row, column);
+        for(int i = 0; i < row; i += 20){
+            for(int k = 0; k < column; k += 20){
+                createLWSS(board, i, k);
+            }
+        }
+        return board;
+    }
+
     public static ManagedBoard createGlider(ManagedBoard board, int row, int column){
         board.setAlive(row,column+1);
         board.setAlive(row+1,column+2);
@@ -40,22 +62,11 @@ public class BoardFactory {
 
     public static ManagedBoard createLotOfGlider(int row, int column){
         ManagedBoard board = createEmptyBoard(row, column);
-        for(int i = 0; i < row; i=i+10){
-            for(int k = 0; k < column; k=k+10){
-                createGlider(board,i,k);
+        for(int i = 0; i < row; i += 10){
+            for(int k = 0; k < column; k += 10){
+                createGlider(board, i, k);
             }
         }
         return board;
     }
-
-    public static ManagedBoard createEmptyBoard(int row, int column){
-        ManagedBoard board = new BaseBoard(row, column);
-        board.iterateCell((r, c) -> board.setDead(r,c));
-        return board;
-    }
-
-    public static ManagedBoard createCopyBoard(ManagedBoard board){
-        return new BaseBoard(board);
-    }
-
 }

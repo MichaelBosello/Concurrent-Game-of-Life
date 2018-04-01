@@ -1,6 +1,7 @@
 package application;
 
-import gameoflife.controller.BaseGameOfLife;
+import gameoflife.boardmanager.BoardManager;
+import gameoflife.controller.GameOfLifeImplementation;
 import gameoflife.controller.GameOfLife;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 import gameoflifegui.mainpanel.MainPanel;
@@ -14,11 +15,21 @@ import java.util.logging.Logger;
 
 public class AppController {
 
-    private final static Semaphore CONSUME_EVENT = new Semaphore(0);
+    /**
+     * App parameter
+     * */
+    private final static int ROW = 5000;
+    private final static int COLUMN = 5000;
+    private final static BoardManager.BoardType startBoard = BoardManager.BoardType.GLIDER;
+    /**
+     *
+     * */
+
     private static final Logger LOGGER = Logger.getLogger( AppController.class.getName() );
     private static final StopWatch BOOT_TIME = new MillisecondStopWatch();
     private static final StopWatch CREATE_BOARD_TIME = new MillisecondStopWatch();
     private static final String TIME_UNIT = "ms";
+    private final static Semaphore CONSUME_EVENT = new Semaphore(0);
 
     public static void main(String args[]) {
 
@@ -26,14 +37,14 @@ public class AppController {
         LOGGER.log(Level.FINER, "Model initialization, Thread: " + Thread.currentThread().getName());
 
         CREATE_BOARD_TIME.start();
-        GameOfLife gameOfLife = new BaseGameOfLife(CONSUME_EVENT);
+        GameOfLife gameOfLife = new GameOfLifeImplementation(ROW, COLUMN, CONSUME_EVENT, startBoard);
         CREATE_BOARD_TIME.stop();
-        LOGGER.log(Level.INFO, "Board created in: ("+TIME_UNIT+") " + CREATE_BOARD_TIME.getTime());
+        LOGGER.log(Level.INFO, "Board created in: (" + TIME_UNIT + ") " + CREATE_BOARD_TIME.getTime());
 
         try {
             SwingUtilities.invokeAndWait(() -> {
-                final GameOfLifeGUI window = new MainPanel(MainPanel.UpdateType.BOARD);
-                window.addObserver(new GUIObserver(gameOfLife,CONSUME_EVENT));
+                GameOfLifeGUI window = new MainPanel(MainPanel.UpdateType.BOARD);
+                window.addObserver(new GUIObserver(gameOfLife, CONSUME_EVENT));
                 gameOfLife.addObserver(new BoardGameObserver(window));
                 window.updateBoard(gameOfLife.getBoard());
                 window.updateLivingCellLabel(gameOfLife.getLivingCell());

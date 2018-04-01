@@ -15,13 +15,21 @@ public class BaseBoardManager implements BoardManager {
     protected ManagedBoard nextBoard;
     protected int livingCell = 0;
 
-
-    public BaseBoardManager(int row, int column) {
-        currentBoard = BoardFactory.createSimpleBoard(row,column);
+    public BaseBoardManager(int row, int column, BoardType startBoard) {
+        switch (startBoard){
+            case LWSS:
+                currentBoard = BoardFactory.createLotOfLWSS(row,column);
+                break;
+            case GLIDER:
+                currentBoard = BoardFactory.createLotOfGlider(row,column);
+                break;
+            case RANDOM:
+                currentBoard = BoardFactory.createSimpleBoard(row,column);
+        }
         nextBoard = BoardFactory.createCopyBoard(currentBoard);
 
         currentBoard.iterateCell((cellRow, cellColumn) -> {
-            if(currentBoard.isCellAlive(cellRow,cellColumn)){
+            if(currentBoard.isCellAlive(cellRow, cellColumn)){
                 livingCell++;
             }
         });
@@ -33,66 +41,60 @@ public class BaseBoardManager implements BoardManager {
         return currentBoard;
     }
 
-    protected boolean cellSurvive(int row, int column){
-        int neighborhood = 0;
-
-        int rowStart = (row > 0) ? (row - 1) : 0;
-        int columnStart = (column > 0) ? (column - 1) : 0;
-        int rowEnd = (row < currentBoard.getRow() -1) ? (row + 2):
-                (row < currentBoard.getRow()) ? (row + 1) : currentBoard.getRow();
-        int columnEnd = (column < currentBoard.getColumn() -1) ? (column + 2):
-                (column < currentBoard.getColumn()) ? (column + 1) : currentBoard.getColumn();
-
-        for(int nearRow = rowStart; nearRow < rowEnd; nearRow++){
-            for(int nearColumn = columnStart; nearColumn < columnEnd; nearColumn++){
-                neighborhood += currentBoard.isCellAlive(nearRow,nearColumn)? 1 : 0;
-                LOGGER.log(Level.FINEST, "Cell [" + row + "," + column +
-                        "] neighbour: [" + nearRow + "," + nearColumn + "]");
-            }
-        }
-
-        if(currentBoard.isCellAlive(row,column)){
-            neighborhood--;
-            if(neighborhood == 2){
-                LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
-                return true;
-            }
-        }
-
-        if(neighborhood == 3){
-            LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
-            return true;
-        }
-
-        LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] dies");
-        return false;
+    @Override
+    public int getLivingCell() {
+        return livingCell;
     }
 
     @Override
     public void updateBoard(){
         livingCell = 0;
         currentBoard.iterateCell((row, column) -> {
-                if(cellSurvive(row,column)){
-                    nextBoard.setAlive(row,column);
-                    livingCell++;
-                }else{
-                    nextBoard.setDead(row,column);
-                }
-
+            if(cellSurvive(row,column)){
+                nextBoard.setAlive(row,column);
+                livingCell++;
+            }else{
+                nextBoard.setDead(row,column);
+            }
         });
-
         swapBoard();
+    }
 
+    protected boolean cellSurvive(int row, int column){
+        int neighborhood = 0;
+
+        int rowStart = row > 0 ? (row - 1) : 0;
+        int columnStart = column > 0 ? (column - 1) : 0;
+        int rowEnd = row < currentBoard.getRow() - 1 ? (row + 2) :
+                row < currentBoard.getRow() ? (row + 1) : currentBoard.getRow();
+        int columnEnd = column < currentBoard.getColumn() -1 ? (column + 2) :
+                column < currentBoard.getColumn() ? (column + 1) : currentBoard.getColumn();
+
+        for(int nearRow = rowStart; nearRow < rowEnd; nearRow++){
+            for(int nearColumn = columnStart; nearColumn < columnEnd; nearColumn++){
+                neighborhood += currentBoard.isCellAlive(nearRow, nearColumn) ? 1 : 0;
+                //LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] neighbour: [" + nearRow + "," + nearColumn + "]");
+            }
+        }
+
+        if(currentBoard.isCellAlive(row, column)){
+            neighborhood--;
+            if(neighborhood == 2){
+                //LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
+                return true;
+            }
+        }
+        if(neighborhood == 3){
+            //LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] survive");
+            return true;
+        }
+        //LOGGER.log(Level.FINEST, "Cell [" + row + "," + column + "] dies");
+        return false;
     }
 
     protected void swapBoard(){
         ManagedBoard temporaryBoard = currentBoard;
         currentBoard = nextBoard;
         nextBoard = temporaryBoard;
-    }
-
-    @Override
-    public int getLivingCell() {
-        return livingCell;
     }
 }

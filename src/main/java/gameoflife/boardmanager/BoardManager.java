@@ -4,9 +4,11 @@ import gameoflife.board.Board;
 
 public interface BoardManager {
 
+    enum BoardType { RANDOM, LWSS, GLIDER }
+
     Board getBoard();
 
-    void updateBoard();
-
     int getLivingCell();
+
+    void updateBoard();
 }

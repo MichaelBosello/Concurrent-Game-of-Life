@@ -1,16 +1,10 @@
 package gameoflife.board;
 
 import java.util.Random;
+
 public class BaseBoard implements ManagedBoard {
     private int row, column;
     private boolean[][] board;
-
-    public BaseBoard(Board board){
-        this.row = board.getRow();
-        this.column = board.getColumn();
-        this.board = new boolean[row][column];
-        board.iterateCell((row, column) -> this.board[row][column] = board.isCellAlive(row,column));
-    }
 
     public BaseBoard(final int row, final int column) {
         if(row <= 0 || column <= 0){
@@ -19,6 +13,13 @@ public class BaseBoard implements ManagedBoard {
         this.row = row;
         this.column = column;
         board = new boolean[row][column];
+    }
+
+    public BaseBoard(Board board){
+        this.row = board.getRow();
+        this.column = board.getColumn();
+        this.board = new boolean[row][column];
+        board.iterateCell((row, column) -> this.board[row][column] = board.isCellAlive(row, column));
     }
 
     @Override
@@ -30,7 +31,7 @@ public class BaseBoard implements ManagedBoard {
 
     @Override
     public void iterateCell(cellIterator toPerform){
-        iterateSubCell(0,0,getRow(),0,toPerform);
+        iterateSubCell(0, 0, getRow(), 0, toPerform);
     }
 
     @Override
@@ -41,15 +42,15 @@ public class BaseBoard implements ManagedBoard {
         int boardColumn = startRow == endRow ? endColumn : getColumn();
 
         for (column = startColumn; column < boardColumn; column++){
-            toPerform.doForEachCell(startRow,column);
+            toPerform.doForEachCell(startRow, column);
         }
         for (row = startRow + 1; row < endRow; row++){
             for (column = 0; column < boardColumn; column++){
-                toPerform.doForEachCell(row,column);
+                toPerform.doForEachCell(row, column);
             }
         }
         for (column = 0; column < endColumn; column++){
-            toPerform.doForEachCell(endRow,column);
+            toPerform.doForEachCell(endRow, column);
         }
 
         /*

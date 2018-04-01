@@ -11,9 +11,10 @@ import java.util.logging.Logger;
 
 public class GUIObserver implements MainPanelObserver {
 
-    private final Logger GUI_LOGGER = Logger.getLogger( GUIObserver.class.getName());
-    private final StopWatch CREATE_BOARD_TIME = new MillisecondStopWatch();
-    private final String TIME_UNIT = "ms";
+    private static final Logger GUI_LOGGER = Logger.getLogger( GUIObserver.class.getName());
+    private static final String TIME_UNIT = "ms";
+    private final StopWatch createBoardTime = new MillisecondStopWatch();
+
     private GameOfLife gameOfLife;
     private Semaphore consumeEvent;
 
@@ -25,7 +26,7 @@ public class GUIObserver implements MainPanelObserver {
     @Override
     public void startEvent() {
         GUI_LOGGER.log(Level.FINER, "GUI shot non-blocking start-event, Thread: " + Thread.currentThread().getName());
-        CREATE_BOARD_TIME.start();
+        createBoardTime.start();
         gameOfLife.start();
     }
 
@@ -37,10 +38,12 @@ public class GUIObserver implements MainPanelObserver {
 
     @Override
     public void boardUpdated() {
-        CREATE_BOARD_TIME.stop();
-        GUI_LOGGER.log(Level.INFO, "Time between two frame: ("+TIME_UNIT+") " + CREATE_BOARD_TIME.getTime());
         GUI_LOGGER.log(Level.FINER, "GUI shot image updated-event, Thread: " + Thread.currentThread().getName());
-        CREATE_BOARD_TIME.start();
+
+        createBoardTime.stop();
+        GUI_LOGGER.log(Level.INFO, "Time between two frame: ("+TIME_UNIT+") " + createBoardTime.getTime());
+        createBoardTime.start();
+
         consumeEvent.release();
     }
 }

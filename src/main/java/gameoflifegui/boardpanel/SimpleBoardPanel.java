@@ -13,14 +13,14 @@ public class SimpleBoardPanel extends BoardPanel {
         this.add(boardDisplay);
     }
 
-
+    @Override
     public void updateDisplayedBoard(BufferedImage boardImage){
         boardDisplay.setIcon(new ImageIcon(boardImage));
     }
 
     @Override
     public void updateDisplayedBoard(Board board) {
-        //TODO
+        throw new UnsupportedOperationException();
     }
 
 }

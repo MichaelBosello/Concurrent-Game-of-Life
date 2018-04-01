@@ -17,7 +17,7 @@ public class BaseBoardManager implements BoardManager {
 
 
     public BaseBoardManager(int row, int column) {
-        currentBoard = BoardFactory.createLotOfGlider(row,column);
+        currentBoard = BoardFactory.createSimpleBoard(row,column);
         nextBoard = BoardFactory.createCopyBoard(currentBoard);
 
         currentBoard.iterateCell((cellRow, cellColumn) -> {

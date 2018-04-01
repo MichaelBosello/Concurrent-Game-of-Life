@@ -12,14 +12,14 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GameObserverImageComputation implements GameObserver{
+public class GameObserverWithImageComputation implements GameObserver{
 
     protected final Logger LOGGER = Logger.getLogger( GUIObserver.class.getName());
     protected final StopWatch CREATE_IMAGE_TIME = new MillisecondStopWatch();
     protected final String TIME_UNIT = "ms";
     protected GameOfLifeGUI window;
 
-    public GameObserverImageComputation(GameOfLifeGUI window) {
+    public GameObserverWithImageComputation(GameOfLifeGUI window) {
         this.window = window;
     }
 
@@ -28,7 +28,7 @@ public class GameObserverImageComputation implements GameObserver{
 
         LOGGER.log(Level.FINE, "CPU Intensive image creation, Thread: " + Thread.currentThread().getName());
         CREATE_IMAGE_TIME.start();
-        final BufferedImage boardImage = ConvertToImage.boardToImageWithBigCells(board);
+        final BufferedImage boardImage = ConvertToImage.boardToImage(board);
         CREATE_IMAGE_TIME.stop();
         LOGGER.log(Level.INFO, "BufferedImage creation time: ("+TIME_UNIT+") " + CREATE_IMAGE_TIME.getTime());
 

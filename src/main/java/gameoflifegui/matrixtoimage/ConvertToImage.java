@@ -9,22 +9,19 @@ import java.awt.image.WritableRaster;
 
 public class ConvertToImage {
 
-    public static final int RATIO = 30;
+    private final static byte BLACK = (byte)0, WHITE = (byte)255;
+    private final static byte[] map = {BLACK, WHITE};
+    private final static IndexColorModel icm = new IndexColorModel(1, map.length, map, map, map);
 
     public static BufferedImage boardToImage(Board board){
         return boardToImage(board,0,0, board.getRow(), board.getColumn());
     }
 
     public static BufferedImage boardToImage(Board board, int x, int y, int width, int height){
-
-        byte BLACK = (byte)0, WHITE = (byte)255;
-        byte[] map = {BLACK, WHITE};
-        IndexColorModel icm = new IndexColorModel(1, map.length, map, map, map);
-
         int[] data = new int[width*height];
-        for(int row=0; row<width; row++)
-            for(int column=0; column<height; column++)
-                data[row*height + column] = board.isCellAlive(x + row,y + column) ? BLACK:WHITE;
+        for(int row = 0; row < width; row++)
+            for(int column = 0; column < height; column++)
+                data[row*height + column] = board.isCellAlive(x + row,y + column) ? BLACK : WHITE;
 
         WritableRaster raster = icm.createCompatibleWritableRaster(width, height);
         raster.setPixels(0, 0, width, height, data);
@@ -32,64 +29,13 @@ public class ConvertToImage {
 
     }
 
-    public static BufferedImage resize(BufferedImage img, int newW, int newH) {
-        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_BYTE_BINARY);
-
-        Graphics2D g2d = dimg.createGraphics();
+    public static BufferedImage resize(BufferedImage image, int newWidth, int newHeight) {
+        Image tmp = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_BINARY);
+        Graphics2D g2d = resizedImage.createGraphics();
         g2d.drawImage(tmp, 0, 0, null);
         g2d.dispose();
-
-        return dimg;
+        return resizedImage;
     }
 
-    public static BufferedImage boardToImageWithBigCells(Board board){
-
-        if(board.getColumn() > 8000 && board.getRow() > 8000){
-            return boardToImage(board);
-        }
-
-        int resizeRatio = 1;
-        if(board.getColumn() <= 2000 && board.getRow() <= 2000){
-            resizeRatio = 8;
-        } else
-        if(board.getColumn() <= 4000 && board.getRow() <= 4000){
-            resizeRatio = 5;
-        } else
-        if(board.getColumn() <= 6000 && board.getRow() <= 6000){
-            resizeRatio = 3;
-        } else
-        if(board.getColumn() <=8000 && board.getRow() <= 8000){
-            resizeRatio = 2;
-        }
-
-        return resize(boardToImage(board),board.getRow()*resizeRatio,board.getColumn()*resizeRatio);
-    }
-
-    public static BufferedImage[] boardToListImage(Board board){
-        return getTile(boardToImageWithBigCells(board),RATIO,RATIO);
-    }
-
-    public static BufferedImage[] getTile(BufferedImage image, int row,int column) {
-
-        /*
-        * thanks to
-        * https://stackoverflow.com/questions/12418618/split-image-into-clickable-regions
-        * */
-
-        int chunkHeight = image.getHeight() / row;
-        int chunkWidth = image.getWidth() / column;
-        int count = 0;
-        BufferedImage orderedChunks[] = new BufferedImage[row*column];
-        for (int x = 0; x < row; x++) {
-            for (int y = 0; y < column; y++) {
-                orderedChunks[count] = new BufferedImage(chunkWidth, chunkHeight, image.getType());
-
-                Graphics2D chunkGraphics = orderedChunks[count++].createGraphics();
-                chunkGraphics.drawImage(image, 0, 0, chunkWidth, chunkHeight, chunkWidth * y, chunkHeight * x, chunkWidth * y + chunkWidth, chunkHeight * x + chunkHeight, null);
-                chunkGraphics.dispose();
-            }
-        }
-        return orderedChunks;
-    }
 }

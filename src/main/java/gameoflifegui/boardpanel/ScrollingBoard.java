@@ -13,30 +13,29 @@ import java.util.logging.Logger;
 
 public class ScrollingBoard extends BoardPanel{
 
-    private static final Logger LOGGER = Logger.getLogger( BigImageScrollPane.class.getName() );
-    private static int boardRow = 100;
-    private static int boardColumn = 100;
+    private static final Logger LOGGER = Logger.getLogger( ScrollingBoard.class.getName() );
+
+    private int canvasRow = 100;
+    private int canvasColumn = 100;
+    private boolean initialized = false;
+    Board board = null;
 
     private JLabel boardDisplay = new JLabel();
     private JScrollBar horizontalScroller;
     private JScrollBar verticalScroller;
     private int canvasWidth, canvasHeight;
 
-    private boolean initialized = false;
-    Board board = null;
-
     public ScrollingBoard() {
-        this.setLayout(new BorderLayout());
         horizontalScroller = new JScrollBar(JScrollBar.HORIZONTAL);
-        verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
+        horizontalScroller.addAdjustmentListener((e)-> updateImage());
         horizontalScroller.setMinimum (0);
+        verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
+        verticalScroller.addAdjustmentListener((e)-> updateImage());
         verticalScroller.setMinimum (0);
+        this.setLayout(new BorderLayout());
         this.add(boardDisplay,BorderLayout.CENTER);
         this.add(horizontalScroller,BorderLayout.PAGE_END);
         this.add(verticalScroller,BorderLayout.LINE_END);
-
-        horizontalScroller.addAdjustmentListener((e)-> updateImage());
-        verticalScroller.addAdjustmentListener((e)-> updateImage());
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -46,53 +45,50 @@ public class ScrollingBoard extends BoardPanel{
                 canvasWidth = e.getComponent().getWidth() - verticalScroller.getWidth();
                 canvasHeight = e.getComponent().getHeight() - horizontalScroller.getHeight();
                 if(board != null){
-                    if(board.getRow() < boardRow) {
-                        boardRow = board.getRow();
-                    }
-                    if(board.getColumn() < boardColumn) {
-                        boardColumn = board.getColumn();
-                    }
-                    verticalScroller.setMaximum(board.getRow() - boardRow);
-                    horizontalScroller.setMaximum(board.getColumn() - boardColumn);
+                    updateScroller();
                     updateImage();
                 }
             }
         });
     }
 
-    private void updateImage(){
-        LOGGER.log(Level.FINE, "Image Update from [" + horizontalScroller.getValue() +
-                "," + verticalScroller.getValue() + "] to [" +
-                canvasWidth + "," + canvasHeight + "]");
-        if(board != null && canvasWidth > 0 && canvasHeight > 0)
-            boardDisplay.setIcon(new ImageIcon(
-                    ConvertToImage.resize(
-                    ConvertToImage.boardToImage(board,
-                    verticalScroller.getValue(),horizontalScroller.getValue(), boardRow, boardColumn),
-                    canvasWidth,canvasHeight)));
-    }
-
+    @Override
     public void updateDisplayedBoard(BufferedImage boardImage){
-        //TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void updateDisplayedBoard(Board board) {
+        this.board = board;
         if(!initialized){
             initialized = true;
             canvasWidth = this.getWidth() - verticalScroller.getWidth();
             canvasHeight = this.getHeight() - horizontalScroller.getHeight();
-            if(board.getRow() < boardRow) {
-                boardRow = board.getRow();
-            }
-            if(board.getColumn() < boardColumn) {
-                boardColumn = board.getColumn();
-            }
-            verticalScroller.setMaximum(board.getRow() - boardRow);
-            horizontalScroller.setMaximum(board.getColumn() - boardColumn);
+            updateScroller();
+        }
+        updateImage();
+    }
+
+    private void updateImage(){
+        LOGGER.log(Level.FINE, "Image Update from [" + horizontalScroller.getValue() +
+                "," + verticalScroller.getValue() + "] to [" +
+                canvasWidth + "," + canvasHeight + "]");
+        if(board != null && canvasWidth > 0 && canvasHeight > 0){
+            BufferedImage subBoardImage = ConvertToImage.boardToImage(board,
+                    verticalScroller.getValue(),horizontalScroller.getValue(), canvasRow, canvasColumn);
+            boardDisplay.setIcon(new ImageIcon(ConvertToImage.resize(subBoardImage, canvasWidth,canvasHeight)));
         }
 
-        this.board = board;
-        updateImage();
+    }
+
+    private void updateScroller(){
+        if(board.getRow() < canvasRow) {
+            canvasRow = board.getRow();
+        }
+        if(board.getColumn() < canvasColumn) {
+            canvasColumn = board.getColumn();
+        }
+        verticalScroller.setMaximum(board.getRow() - canvasRow);
+        horizontalScroller.setMaximum(board.getColumn() - canvasColumn);
     }
 }

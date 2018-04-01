@@ -9,8 +9,6 @@ public interface Board {
 
     void initializeWithRandomState(long seed);
 
-    void initializeWithRandomState();
-
     void iterateCell(cellIterator toPerform);
 
     void iterateSubCell(int startRow, int startColumn, int endRow, int endColumn, cellIterator toPerform);

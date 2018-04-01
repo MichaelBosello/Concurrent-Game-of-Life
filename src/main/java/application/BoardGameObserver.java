@@ -5,9 +5,9 @@ import gameoflifegui.mainpanel.GameOfLifeGUI;
 
 import javax.swing.*;
 
-public class BaseGameObserver extends GameObserverImageComputation {
+public class BoardGameObserver extends GameObserverWithImageComputation {
 
-    public BaseGameObserver(GameOfLifeGUI window) {
+    public BoardGameObserver(GameOfLifeGUI window) {
         super(window);
     }
 

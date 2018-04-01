@@ -11,30 +11,36 @@ import java.util.Set;
 
 public class MainPanel extends JFrame implements GameOfLifeGUI {
 
-    private final String LIVING_TEXT = "Living cell: ";
+    public enum UpdateType { BOARD, BUFFERED_IMAGE }
+    private static final String LIVING_TEXT = "Living cell: ";
     private final Set<MainPanelObserver> guiObserver = new HashSet<>();
 
-    private BoardPanel board = new ScrollingBoard();
+    private BoardPanel boardPanel;
     private JLabel aliveCellLabel = new JLabel(LIVING_TEXT + "0");
 
-    public MainPanel() {
-        this.setTitle("Game of Life");
+    public MainPanel(UpdateType updateType) {
+        this.setTitle("The Game of Life");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
-        //JScrollPane boardPanel = new JScrollPane(board);
-        this.getContentPane().add(board, BorderLayout.CENTER);
-
-        JButton start = new JButton("Start");
-        JButton stop = new JButton("Stop");
+        if(updateType == UpdateType.BOARD){
+            boardPanel = new ScrollingBoard();
+            this.getContentPane().add(boardPanel, BorderLayout.CENTER);
+        }
+        if(updateType == UpdateType.BUFFERED_IMAGE){
+            boardPanel = new SimpleBoardPanel();
+            JScrollPane boardPanel = new JScrollPane(this.boardPanel);
+            this.getContentPane().add(boardPanel, BorderLayout.CENTER);
+        }
 
         JPanel commandPanel = new JPanel();
+        JButton start = new JButton("Start");
         start.addActionListener(e -> notifyStart());
         commandPanel.add(start);
+        JButton stop = new JButton("Stop");
         stop.addActionListener(e -> notifyStop());
         commandPanel.add(stop);
         commandPanel.add(aliveCellLabel);
-
         this.getContentPane().add(commandPanel,BorderLayout.PAGE_END);
         this.setSize(1000, 1000);
         this.setLocationRelativeTo(null);
@@ -42,14 +48,19 @@ public class MainPanel extends JFrame implements GameOfLifeGUI {
     }
 
     @Override
+    public void addObserver(MainPanelObserver observer){
+        this.guiObserver.add(observer);
+    }
+
+    @Override
     public void updateBoard(BufferedImage boardImage) {
-        board.updateDisplayedBoard(boardImage);
+        boardPanel.updateDisplayedBoard(boardImage);
         notifyUpdated();
     }
 
     @Override
-    public void updateBoard(Board boardImage) {
-        board.updateDisplayedBoard(boardImage);
+    public void updateBoard(Board board) {
+        boardPanel.updateDisplayedBoard(board);
         notifyUpdated();
     }
 
@@ -74,11 +85,4 @@ public class MainPanel extends JFrame implements GameOfLifeGUI {
             observer.boardUpdated();
         }
     }
-
-    @Override
-    public void addObserver(MainPanelObserver observer){
-        this.guiObserver.add(observer);
-    }
-
-
 }

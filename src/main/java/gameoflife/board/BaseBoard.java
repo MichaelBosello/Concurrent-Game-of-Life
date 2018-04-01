@@ -22,11 +22,6 @@ public class BaseBoard implements ManagedBoard {
     }
 
     @Override
-    public void initializeWithRandomState(){
-        initializeWithRandomState(System.nanoTime());
-    }
-
-    @Override
     public void initializeWithRandomState(long seed){
         final Random randomForBoard = new Random();
         randomForBoard.setSeed(seed);

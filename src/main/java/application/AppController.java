@@ -4,12 +4,10 @@ import gameoflife.controller.BaseGameOfLife;
 import gameoflife.controller.GameOfLife;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 import gameoflifegui.mainpanel.MainPanel;
-import gameoflifegui.matrixtoimage.ConvertToImage;
 import utility.MillisecondStopWatch;
 import utility.StopWatch;
 
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,9 +32,9 @@ public class AppController {
 
         try {
             SwingUtilities.invokeAndWait(() -> {
-                final GameOfLifeGUI window = new MainPanel();
+                final GameOfLifeGUI window = new MainPanel(MainPanel.UpdateType.BOARD);
                 window.addObserver(new GUIObserver(gameOfLife,CONSUME_EVENT));
-                gameOfLife.addObserver(new BaseGameObserver(window));
+                gameOfLife.addObserver(new BoardGameObserver(window));
                 window.updateBoard(gameOfLife.getBoard());
                 window.updateLivingCellLabel(gameOfLife.getLivingCell());
             });

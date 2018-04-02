@@ -5,12 +5,18 @@ public class BoardFactory {
     private BoardFactory() {}
 
     public static ManagedBoard createSimpleBoard(int row, int column){
-        return createRandomBoard(row, column, System.nanoTime());
+        return createRandomBoard(row, column);
+    }
+
+    public static ManagedBoard createRandomBoard(int row, int column){
+        ManagedBoard board = new ConcurrentBoard(row, column);
+        board.initializeWithRandomState();
+        return board;
     }
 
     public static ManagedBoard createRandomBoard(int row, int column, long seed){
         ManagedBoard board = new ConcurrentBoard(row, column);
-        board.initializeWithRandomState();
+        board.initializeWithRandomState(seed);
         return board;
     }
 

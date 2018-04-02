@@ -21,15 +21,15 @@ public class BaseBoard implements ManagedBoard {
     }
 
     @Override
+    public void initializeWithRandomState(){
+        initializeWithRandomState(System.nanoTime());
+    }
+
+    @Override
     public void initializeWithRandomState(long seed){
         final Random randomForBoard = new Random();
         randomForBoard.setSeed(seed);
         iterateCell((row, column) -> board[row][column] = randomForBoard.nextBoolean());
-    }
-
-    @Override
-    public void initializeWithRandomState(){
-        initializeWithRandomState(System.nanoTime());
     }
 
     @Override
@@ -39,7 +39,6 @@ public class BaseBoard implements ManagedBoard {
 
     @Override
     public void iterateSubCell(int startRow, int startColumn, int endRow, int endColumn, cellIterator toPerform) {
-
         int row;
         int column;
         int boardColumn = startRow == endRow ? endColumn : getColumn();

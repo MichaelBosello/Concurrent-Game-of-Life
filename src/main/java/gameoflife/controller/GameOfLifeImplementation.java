@@ -37,27 +37,27 @@ public class GameOfLifeImplementation implements GameOfLife{
         public void run() {
             while (true){
                 try {
-                    logger.log(Level.FINE, "Board update manager, Thread: " + Thread.currentThread().getName());
+                    //logger.log(Level.FINE, "Board update manager, Thread: " + Thread.currentThread().getName());
 
-                    logger.log(Level.FINEST, "Try to acquire event lock");
+                    //logger.log(Level.FINEST, "Try to acquire event lock");
                     consumedEvent.acquire();
-                    logger.log(Level.FINEST, "Lock acquired, updating board");
+                    //logger.log(Level.FINEST, "Lock acquired, updating board");
 
                     boardComputationTimer.start();
                     game.updateBoard();
                     boardComputationTimer.stop();
                     logger.log(Level.INFO, "Board computation time: ("+TIME_UNIT+") " + boardComputationTimer.getTime());
 
-                    logger.log(Level.FINEST, "New board ready");
+                    //logger.log(Level.FINEST, "New board ready");
 
                     while (!run.get()){
                         startEvent.acquire();
                     }
                     notifyNewState(game.getBoard(), game.getLivingCell());
-                    logger.log(Level.FINER, "Notified new board");
+                    //logger.log(Level.FINER, "Notified new board");
 
                 } catch (InterruptedException e) {
-                    logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
+                    //logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
                 }
             }
         }
@@ -76,13 +76,13 @@ public class GameOfLifeImplementation implements GameOfLife{
         if(startEvent.availablePermits() == 0){
             startEvent.release();
         }
-        LOGGER.log(Level.FINE, "Start event received by backend");
+        //LOGGER.log(Level.FINE, "Start event received by backend");
     }
 
     @Override
     public void stop(){
         this.run.set(false);
-        LOGGER.log(Level.FINE, "Stop event received by backend");
+        //LOGGER.log(Level.FINE, "Stop event received by backend");
     }
 
     @Override

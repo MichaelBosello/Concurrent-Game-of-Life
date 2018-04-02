@@ -9,23 +9,23 @@ public class BoardFactory {
     }
 
     public static ManagedBoard createRandomBoard(int row, int column, long seed){
-        ManagedBoard board = new BaseBoard(row, column);
-        board.initializeWithRandomState(seed);
+        ManagedBoard board = new ConcurrentBoard(row, column);
+        board.initializeWithRandomState();
         return board;
     }
 
     public static ManagedBoard createEmptyBoard(int row, int column){
-        ManagedBoard board = new BaseBoard(row, column);
+        ManagedBoard board = new ConcurrentBoard(row, column);
         board.iterateCell((r, c) -> board.setDead(r, c));
         return board;
     }
 
     public static ManagedBoard createCopyBoard(ManagedBoard board){
-        return new BaseBoard(board);
+        return new ConcurrentBoard(board);
     }
 
     public static ManagedBoard createCopyBoard(Board board){
-        return new BaseBoard(board);
+        return new ConcurrentBoard(board);
     }
 
     public static ManagedBoard createLWSS(ManagedBoard board, int row, int column){

@@ -25,20 +25,20 @@ public class GUIObserver implements MainPanelObserver {
 
     @Override
     public void startEvent() {
-        GUI_LOGGER.log(Level.FINER, "GUI shot non-blocking start-event, Thread: " + Thread.currentThread().getName());
+        //GUI_LOGGER.log(Level.FINER, "GUI shot non-blocking start-event, Thread: " + Thread.currentThread().getName());
         createBoardTime.start();
         gameOfLife.start();
     }
 
     @Override
     public void stopEvent() {
-        GUI_LOGGER.log(Level.FINER, "GUI shot non-blocking stop-event, Thread: " + Thread.currentThread().getName());
+        //GUI_LOGGER.log(Level.FINER, "GUI shot non-blocking stop-event, Thread: " + Thread.currentThread().getName());
         gameOfLife.stop();
     }
 
     @Override
     public void boardUpdated() {
-        GUI_LOGGER.log(Level.FINER, "GUI shot image updated-event, Thread: " + Thread.currentThread().getName());
+        //GUI_LOGGER.log(Level.FINER, "GUI shot image updated-event, Thread: " + Thread.currentThread().getName());
 
         createBoardTime.stop();
         GUI_LOGGER.log(Level.INFO, "Time between two frame: ("+TIME_UNIT+") " + createBoardTime.getTime());

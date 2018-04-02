@@ -40,7 +40,7 @@ public class ScrollingBoard extends BoardPanel{
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                LOGGER.log(Level.FINER, "resizing");
+                //LOGGER.log(Level.FINER, "resizing");
                 super.componentResized(e);
                 canvasWidth = e.getComponent().getWidth() - verticalScroller.getWidth();
                 canvasHeight = e.getComponent().getHeight() - horizontalScroller.getHeight();
@@ -70,9 +70,9 @@ public class ScrollingBoard extends BoardPanel{
     }
 
     private void updateImage(){
-        LOGGER.log(Level.FINE, "Image Update from [" + horizontalScroller.getValue() +
+        /*LOGGER.log(Level.FINE, "Image Update from [" + horizontalScroller.getValue() +
                 "," + verticalScroller.getValue() + "] to [" +
-                canvasWidth + "," + canvasHeight + "]");
+                canvasWidth + "," + canvasHeight + "]");*/
         if(board != null && canvasWidth > 0 && canvasHeight > 0){
             BufferedImage subBoardImage = ConvertToImage.boardToImage(board,
                     verticalScroller.getValue(),horizontalScroller.getValue(), canvasRow, canvasColumn);

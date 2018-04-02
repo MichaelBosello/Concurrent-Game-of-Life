@@ -3,8 +3,8 @@ package gameoflife.board;
 import java.util.Random;
 
 public class BaseBoard implements ManagedBoard {
-    private int row, column;
-    private boolean[][] board;
+    protected int row, column;
+    protected boolean[][] board;
 
     public BaseBoard(final int row, final int column) {
         if(row <= 0 || column <= 0){
@@ -16,9 +16,7 @@ public class BaseBoard implements ManagedBoard {
     }
 
     public BaseBoard(Board board){
-        this.row = board.getRow();
-        this.column = board.getColumn();
-        this.board = new boolean[row][column];
+        this(board.getRow(), board.getColumn());
         board.iterateCell((row, column) -> this.board[row][column] = board.isCellAlive(row, column));
     }
 
@@ -27,6 +25,11 @@ public class BaseBoard implements ManagedBoard {
         final Random randomForBoard = new Random();
         randomForBoard.setSeed(seed);
         iterateCell((row, column) -> board[row][column] = randomForBoard.nextBoolean());
+    }
+
+    @Override
+    public void initializeWithRandomState(){
+        initializeWithRandomState(System.nanoTime());
     }
 
     @Override
@@ -52,21 +55,6 @@ public class BaseBoard implements ManagedBoard {
         for (column = 0; column < endColumn; column++){
             toPerform.doForEachCell(endRow, column);
         }
-
-        /*
-        //first attempt (less efficient)
-        for (int row = startRow; row <= endRow; row++){
-            int startSubColumn = 0;
-            int endSubColumn = getColumn();
-            if(row == startRow){
-                startSubColumn = startColumn;
-            }else if(row == endRow){
-                endSubColumn = endColumn;
-            }
-            for (int column = startSubColumn; column < endSubColumn; column++){
-                toPerform.doForEachCell(row,column);
-            }
-        }*/
     }
 
     @Override

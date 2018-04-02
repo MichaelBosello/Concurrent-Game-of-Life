@@ -18,9 +18,6 @@ public class ConcurrentBoardManager extends BaseBoardManager {
     private ManagedBoard debugBoard;
 
     private static final int PROCESSORS = Runtime.getRuntime().availableProcessors() + 1 ;
-    //best performance with core/2 worker cause of hyper-threading:
-    //private static final int PROCESSORS = Runtime.getRuntime().availableProcessors() > 1 ? Runtime.getRuntime().availableProcessors()/2 : 1 ;
-
     private final List<subBoardWorker> workers = new ArrayList<>();
     private final Executor executorPool = Executors.newFixedThreadPool(PROCESSORS);
     private final Semaphore subComputationDone = new Semaphore(0);
@@ -49,7 +46,6 @@ public class ConcurrentBoardManager extends BaseBoardManager {
         livingCell = 0;
 
         for (subBoardWorker worker : workers){
-            //new Thread(worker).start();
             executorPool.execute(worker);
         }
         try {
@@ -94,7 +90,6 @@ public class ConcurrentBoardManager extends BaseBoardManager {
                     endCell%currentBoard.getColumn());
             logger.log(Level.INFO, "Call creation of new worker: from " + startCell + " to " + endCell);
         }
-
 
         @Override
         public void run() {

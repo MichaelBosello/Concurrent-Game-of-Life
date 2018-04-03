@@ -1,7 +1,7 @@
 package application;
 
 import gameoflife.boardmanager.BoardManager;
-import gameoflife.controller.GameOfLifeImplementation;
+import gameoflife.controller.BufferedGameOfLife;
 import gameoflife.controller.GameOfLife;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 import gameoflifegui.mainpanel.MainPanel;
@@ -18,8 +18,8 @@ public class AppController {
     /**
      * App parameter
      * */
-    private final static int ROW = 2000;
-    private final static int COLUMN = 2000;
+    private final static int ROW = 5000;
+    private final static int COLUMN = 5000;
     private final static BoardManager.BoardType startBoard = BoardManager.BoardType.RANDOM;
     /**
      *
@@ -37,7 +37,7 @@ public class AppController {
         LOGGER.log(Level.FINER, "Model initialization, Thread: " + Thread.currentThread().getName());
 
         CREATE_BOARD_TIME.start();
-        GameOfLife gameOfLife = new GameOfLifeImplementation(ROW, COLUMN, CONSUME_EVENT, startBoard);
+        GameOfLife gameOfLife = new BufferedGameOfLife(ROW, COLUMN, CONSUME_EVENT, startBoard);
         CREATE_BOARD_TIME.stop();
         LOGGER.log(Level.INFO, "Board created in: (" + TIME_UNIT + ") " + CREATE_BOARD_TIME.getTime());
 

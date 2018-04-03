@@ -18,8 +18,8 @@ public class AppController {
     /**
      * App parameter
      * */
-    private final static int ROW = 10000;
-    private final static int COLUMN = 10000;
+    private final static int ROW = 5000;
+    private final static int COLUMN = 5000;
     private final static BoardManager.BoardType startBoard = BoardManager.BoardType.RANDOM;
     /**
      *

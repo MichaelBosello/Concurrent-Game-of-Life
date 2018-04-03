@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 public class ScrollingBoard extends BoardPanel{
 
     private static final Logger LOGGER = Logger.getLogger( ScrollingBoard.class.getName() );
+    private static final int PADDING = 10;
 
     private int canvasRow = 100;
     private int canvasColumn = 100;
@@ -88,7 +89,7 @@ public class ScrollingBoard extends BoardPanel{
         if(board.getColumn() < canvasColumn) {
             canvasColumn = board.getColumn();
         }
-        verticalScroller.setMaximum(board.getRow() - canvasRow);
-        horizontalScroller.setMaximum(board.getColumn() - canvasColumn);
+        verticalScroller.setMaximum(board.getRow() - canvasRow + PADDING);
+        horizontalScroller.setMaximum(board.getColumn() - canvasColumn + PADDING);
     }
 }

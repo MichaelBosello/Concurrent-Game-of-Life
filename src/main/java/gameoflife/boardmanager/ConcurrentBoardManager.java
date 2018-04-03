@@ -4,6 +4,8 @@ import gameoflife.board.BoardFactory;
 import gameoflife.board.ManagedBoard;
 import gameoflife.board.boardworker.BoardConcurrentWorker;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,8 @@ public class ConcurrentBoardManager extends BaseBoardManager {
 
     private class UpdateWorker extends BoardConcurrentWorker {
 
+        protected final Executor executorPool = Executors.newFixedThreadPool(PROCESSORS);
+
         protected UpdateWorker(int row, int column, boolean logging) {
             super(row, column, logging);
         }
@@ -55,6 +59,13 @@ public class ConcurrentBoardManager extends BaseBoardManager {
             livingCell = 0;
             for (BoardConcurrentWorker.SubBoardWorker worker : workers){
                 livingCell += ((SubBoardWorker)worker).getSubLivingCell();
+            }
+        }
+
+        @Override
+        protected void execute(){
+            for (BoardConcurrentWorker.SubBoardWorker worker : workers){
+                executorPool.execute(worker);
             }
         }
 

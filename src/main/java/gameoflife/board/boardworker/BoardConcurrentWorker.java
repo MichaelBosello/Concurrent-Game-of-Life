@@ -2,19 +2,16 @@ package gameoflife.board.boardworker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BoardConcurrentWorker {
 
-    private static final Logger LOGGER = Logger.getLogger( BoardConcurrentWorker.class.getName() );
+    protected static final Logger LOGGER = Logger.getLogger( BoardConcurrentWorker.class.getName() );
     protected static final int PROCESSORS = Runtime.getRuntime().availableProcessors() + 1 ;
 
     protected final List<SubBoardWorker> workers = new ArrayList<>();
-    protected final Executor executorPool = Executors.newFixedThreadPool(PROCESSORS);
     protected final Semaphore subComputationDone = new Semaphore(0);
     protected boolean logging;
     protected int column;
@@ -43,9 +40,17 @@ public class BoardConcurrentWorker {
     }
 
     public void executeAndWait(){
+        execute();
+        waitBoardComplete();
+    }
+
+    protected void execute(){
         for (SubBoardWorker worker : workers){
-            executorPool.execute(worker);
+            new Thread(worker).start();
         }
+    }
+
+    protected void waitBoardComplete(){
         try {
             subComputationDone.acquire(PROCESSORS);
         } catch (InterruptedException e) {

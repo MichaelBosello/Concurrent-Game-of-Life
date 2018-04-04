@@ -24,7 +24,7 @@ public class GameObserverWithImageComputation extends BoardGameObserver{
     @Override
     public void nextBoardComplete(final Board board) {
 
-        LOGGER.log(Level.FINE, "CPU Intensive image creation, Thread: " + Thread.currentThread().getName());
+        //LOGGER.log(Level.FINE, "CPU Intensive image creation, Thread: " + Thread.currentThread().getName());
         CREATE_IMAGE_TIME.start();
         final BufferedImage boardImage = ConvertToImage.boardToImage(board);
         CREATE_IMAGE_TIME.stop();

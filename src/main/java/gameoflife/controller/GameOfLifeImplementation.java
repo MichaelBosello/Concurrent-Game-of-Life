@@ -57,7 +57,7 @@ public class GameOfLifeImplementation implements GameOfLife{
                     //logger.log(Level.FINER, "Notified new board");
 
                 } catch (InterruptedException e) {
-                    //logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
+                    logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
                 }
             }
         }

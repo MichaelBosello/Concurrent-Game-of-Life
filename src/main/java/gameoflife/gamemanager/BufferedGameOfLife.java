@@ -69,10 +69,13 @@ public class BufferedGameOfLife implements GameOfLife{
                     consumedEvent.acquire();
                     //logger.log(Level.FINEST, "Lock acquired, updating board");
 
+                    Board takenBoard = bufferBoard.take();
+                    int takenLivingCell = bufferLivingCell.take();
+
                     while (!run.get()){
                         startEvent.acquire();
                     }
-                    notifyNewState(bufferBoard.take(), bufferLivingCell.take());
+                    notifyNewState(takenBoard, takenLivingCell);
                     //logger.log(Level.FINER, "Notified new board");
                 } catch (InterruptedException e) {
                     logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);

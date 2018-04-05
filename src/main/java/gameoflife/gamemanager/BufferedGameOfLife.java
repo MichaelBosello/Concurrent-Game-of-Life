@@ -1,4 +1,4 @@
-package gameoflife.controller;
+package gameoflife.gamemanager;
 
 import gameoflife.board.Board;
 import gameoflife.board.BoardFactory;
@@ -9,24 +9,30 @@ import utility.StopWatch;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GameOfLifeImplementation implements GameOfLife{
+public class BufferedGameOfLife implements GameOfLife{
 
-    private static final Logger LOGGER = Logger.getLogger( GameOfLifeImplementation.class.getName() );
+    private static final Logger LOGGER = Logger.getLogger( BufferedGameOfLife.class.getName() );
+    private static final int BUFFER_SIZE = 2;
     private final Set<GameObserver> gameWatcher = new HashSet<>();
+    private final BlockingQueue<Board> bufferBoard = new LinkedBlockingQueue<>(BUFFER_SIZE);
+    private final BlockingQueue<Integer> bufferLivingCell = new LinkedBlockingQueue<>(BUFFER_SIZE);
     private AtomicBoolean run = new AtomicBoolean();
     private Semaphore startEvent = new Semaphore(0);
     private Semaphore consumedEvent;
     private BoardManager game;
 
-    public GameOfLifeImplementation(int row, int column, Semaphore consumedEvent, BoardManager.BoardType startBoard) {
+    public BufferedGameOfLife(int row, int column, Semaphore consumedEvent, BoardManager.BoardType startBoard) {
         this.consumedEvent = consumedEvent;
         game = new ConcurrentBoardManager(row, column, startBoard);
-        new Thread(new Updater(),"Thread-update").start();
+        new Thread(new Notifier(), "Thread-notifier").start();
+        new Thread(new Updater(), "Thread-updater").start();
     }
 
     private class Updater implements Runnable {
@@ -36,26 +42,38 @@ public class GameOfLifeImplementation implements GameOfLife{
 
         public void run() {
             while (true){
+                //logger.log(Level.FINE, "Board updater, request computation, Thread: " + Thread.currentThread().getName());
+                boardComputationTimer.start();
+                game.updateBoard();
+                boardComputationTimer.stop();
+                logger.log(Level.INFO, "Board computation time: (" + TIME_UNIT + ") " + boardComputationTimer.getTime());
                 try {
-                    //logger.log(Level.FINE, "Board update manager, Thread: " + Thread.currentThread().getName());
+                    bufferBoard.put(BoardFactory.createCopyBoard(game.getBoard()));
+                    bufferLivingCell.put(game.getLivingCell());
+                } catch (InterruptedException e) {
+                    logger.log(Level.SEVERE, "Error, blocking queue waiting interrupted" + e.toString(), e);
+                }
+                //logger.log(Level.FINER, "New board put in queue");
+            }
+        }
+    }
 
+    private class Notifier implements Runnable {
+        private final Logger logger = Logger.getLogger( Notifier.class.getName() );
+
+        public void run() {
+            while (true){
+                try {
+                    //logger.log(Level.FINE, "Board notifier, Thread: " + Thread.currentThread().getName());
                     //logger.log(Level.FINEST, "Try to acquire event lock");
                     consumedEvent.acquire();
                     //logger.log(Level.FINEST, "Lock acquired, updating board");
 
-                    boardComputationTimer.start();
-                    game.updateBoard();
-                    boardComputationTimer.stop();
-                    logger.log(Level.INFO, "Board computation time: ("+TIME_UNIT+") " + boardComputationTimer.getTime());
-
-                    //logger.log(Level.FINEST, "New board ready");
-
                     while (!run.get()){
                         startEvent.acquire();
                     }
-                    notifyNewState(game.getBoard(), game.getLivingCell());
+                    notifyNewState(bufferBoard.take(), bufferLivingCell.take());
                     //logger.log(Level.FINER, "Notified new board");
-
                 } catch (InterruptedException e) {
                     logger.log(Level.SEVERE, "Lock request interrupted" + e.toString(), e);
                 }
@@ -65,7 +83,7 @@ public class GameOfLifeImplementation implements GameOfLife{
 
     private void notifyNewState(Board newBoard, int livingCell){
         for (final GameObserver observer : this.gameWatcher){
-            observer.nextBoardComplete(BoardFactory.createCopyBoard(newBoard));
+            observer.nextBoardComplete(newBoard);
             observer.livingCellUpdate(livingCell);
         }
     }

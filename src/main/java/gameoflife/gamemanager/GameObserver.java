@@ -1,4 +1,4 @@
-package gameoflife.controller;
+package gameoflife.gamemanager;
 
 import gameoflife.board.Board;
 

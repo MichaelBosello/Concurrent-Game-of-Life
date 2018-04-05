@@ -1,7 +1,7 @@
 package application;
 
 import gameoflife.board.Board;
-import gameoflife.controller.GameObserver;
+import gameoflife.gamemanager.GameObserver;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 
 import javax.swing.*;

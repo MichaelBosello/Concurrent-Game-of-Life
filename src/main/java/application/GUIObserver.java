@@ -1,6 +1,6 @@
 package application;
 
-import gameoflife.controller.GameOfLife;
+import gameoflife.gamemanager.GameOfLife;
 import gameoflifegui.mainpanel.MainPanelObserver;
 import utility.MillisecondStopWatch;
 import utility.StopWatch;

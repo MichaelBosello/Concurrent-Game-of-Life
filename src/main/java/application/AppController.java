@@ -1,8 +1,8 @@
 package application;
 
 import gameoflife.boardmanager.BoardManager;
-import gameoflife.controller.BufferedGameOfLife;
-import gameoflife.controller.GameOfLife;
+import gameoflife.gamemanager.BufferedGameOfLife;
+import gameoflife.gamemanager.GameOfLife;
 import gameoflifegui.mainpanel.GameOfLifeGUI;
 import gameoflifegui.mainpanel.MainPanel;
 import utility.MillisecondStopWatch;
